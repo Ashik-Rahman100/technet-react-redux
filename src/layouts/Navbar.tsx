@@ -1,19 +1,33 @@
+import { auth } from '@/lib/firebase';
+import { setUser } from '@/redux/features/user/userSlice';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { signOut } from 'firebase/auth';
+import { HiOutlineSearch } from 'react-icons/hi';
 import { Link } from 'react-router-dom';
+import logo from '../assets/images/technet-logo.png';
+import Cart from '../components/Cart';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { Button } from '../components/ui/button';
-import { DropdownMenuSeparator } from '../components/ui/dropdown-menu';
-import { DropdownMenuLabel } from '../components/ui/dropdown-menu';
 import {
-  DropdownMenuItem,
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from '../components/ui/dropdown-menu';
-import { HiOutlineSearch } from 'react-icons/hi';
-import Cart from '../components/Cart';
-import logo from '../assets/images/technet-logo.png';
 
 export default function Navbar() {
+  const { user } = useAppSelector((state) => state.user);
+
+  const dispatch = useAppDispatch();
+  const handleLogOut = () => {
+    // console.log('Log Out');
+    signOut(auth).then(() => {
+      // Sign-out successful.
+      dispatch(setUser(null));
+    });
+  };
   return (
     <nav className="w-full h-16 fixed top backdrop-blur-lg z-10">
       <div className="h-full w-full bg-white/60">
@@ -60,15 +74,30 @@ export default function Navbar() {
                     <DropdownMenuItem className="cursor-pointer">
                       Profile
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer">
-                      Billing
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer">
-                      Team
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer">
-                      Subscription
-                    </DropdownMenuItem>
+                    {!user.email && (
+                      <>
+                        <Link to="/signup">
+                          <DropdownMenuItem className="cursor-pointer">
+                            SignUp
+                          </DropdownMenuItem>
+                        </Link>
+                        <Link to="/login">
+                          <DropdownMenuItem className="cursor-pointer">
+                            Login
+                          </DropdownMenuItem>
+                        </Link>
+                      </>
+                    )}
+                    {user.email && (
+                      <>
+                        <DropdownMenuItem
+                          onClick={handleLogOut}
+                          className="cursor-pointer"
+                        >
+                          Logout
+                        </DropdownMenuItem>
+                      </>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </li>
